@@ -8,4 +8,4 @@ EXPOSE 3000
 VOLUME ["/app"]
 
 ENTRYPOINT ["npm"]
-CMD ["start"]
+CMD ["run", "devstart"]
