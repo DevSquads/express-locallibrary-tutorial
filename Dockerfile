@@ -5,7 +5,8 @@ WORKDIR /app
 RUN npm install
 
 EXPOSE 3000
+EXPOSE 9229
 VOLUME ["/app"]
 
 ENTRYPOINT ["npm"]
-CMD ["run", "devstart"]
+CMD ["run", "debugstart"]
