@@ -7,5 +7,5 @@ RUN npm install
 EXPOSE 3000
 VOLUME ["/app"]
 
-ENTRYPOINT ["npm"]
-CMD ["run", "devstart"]
+ENTRYPOINT ["npm", "run"]
+CMD ["devstart"]
