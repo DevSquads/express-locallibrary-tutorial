@@ -4,6 +4,7 @@ pipeline {
         stage('Docker compose Up') {
             steps {
                 echo "building the docker compose and initialize the containers "
+                sh 'docker-machine start default'
                 sh '/usr/local/bin/docker-compose up -d'
             }
         }
