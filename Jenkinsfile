@@ -4,7 +4,7 @@ pipeline {
         stage('Docker compose Up') {
             steps {
                 echo "building the docker compose and initialize the containers "
-                sh 'docker-compose up -d'
+                sh 'whoami && docker-compose --verbose up -d'
             }
         }
         stage('waiting ') {
