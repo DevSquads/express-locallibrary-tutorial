@@ -8,6 +8,8 @@ services:
         build:
             context: ./
             dockerfile: ./Dockerfile
+        env_file:
+          - dev.env
         volumes:
           - .:/app
           - /app/node_modules
