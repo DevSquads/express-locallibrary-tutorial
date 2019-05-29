@@ -4,12 +4,12 @@ pipeline {
         stage('Docker compose Up') {
             steps {
                 echo "building the docker compose and initialize the containers "
-                sh 'whoami && docker-compose --verbose up -d'
+                sh 'docker-compose  up -d'
             }
         }
         stage('waiting ') {
             steps {
-               sleep 150
+               sleep 30
             }
         }
          stage('Docker compose teardown') {
