@@ -8,6 +8,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "devstart": "nodemon ./bin/www",
+    "debugstart": "nodemon --inspect=0.0.0.0 ./bin/www",
     "seed": "node ./populatedb.js $MONGODB_URI"
   },
   "dependencies": {
