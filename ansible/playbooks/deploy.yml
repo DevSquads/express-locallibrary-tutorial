@@ -1,18 +1,33 @@
 ---
-- hosts: controller
-  tasks:
-    - name: load ssh key
-      shell: |
-          ssh-add ~/.ssh/id_rsa
+#- hosts: controller
+#  tasks:
+#    - name: load ssh key
+#      shell: |
+#          ssh-add ~/.ssh/locallibrary_deploy_key
 
 - hosts: webserver
   gather_facts: yes
+  become: yes
+  become_method: sudo
   vars:
     NODEJS_VERSION: "8"
     mongodb_version: 4.0.10
-    PROJECT_REPO: 'git@github.com:DevSquads/express-locallibrary-tutorial.git'
+    PROJECT_REPO: 'https://github.com/DevSquads/express-locallibrary-tutorial.git'
     PROJECT_NAME: 'Express-Library'
+    MONGODB_URI: 'mongodb://localhost/local_library?retryWrites=true'
+
   tasks:
+    # NEVER do this in production
+    - name: Disable unattended upgrades
+      lineinfile:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        line: "{{ item.line }}"
+        state: "{{ item.state }}"
+      with_items:
+          - { line: 'APT::Periodic::Update-Package-Lists "0";', state: 'present' }
+          - { line: 'APT::Periodic::Update-Package-Lists "1";', state: 'absent' }
+          - { line: 'APT::Periodic::Unattended-Upgrade "0";', state: 'present' }
+          - { line: 'APT::Periodic::Unattended-Upgrade "1";', state: 'absent' }
     - name: Install the gpg key for nodejs LTS
       apt_key:
         url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
@@ -24,6 +39,14 @@
         state: present
         update_cache: yes
 
+    # # Will take a long time on a local machine if unattended upgrades is enabled
+    # # because of internet speed, but shouldn't take long on a server
+    # - name: Wait for automatic system updates to complete
+    #   shell: while pgrep unattended; do sleep 1; done;
+
+    - name: Wait for /var/lib/dpkg/lock-frontend to be released   
+      shell: while lsof /var/lib/dpkg/lock-frontend ; do sleep 1; done;
+
     - name: Install the nodejs
       apt:
         name: nodejs
@@ -31,24 +54,26 @@
 
     - name: MongoDB | Import the public key used by the package management system
       apt_key:
-          keyserver: keyserver.ubuntu.com
-          id: 9DA31620334BD75D9DCB49F368818C72E52529D4
+        keyserver: keyserver.ubuntu.com
+        id: 9DA31620334BD75D9DCB49F368818C72E52529D4
+
     - name: MongoDB | Create a list file
       lineinfile:
-          dest: /etc/apt/sources.list.d/mongodb-org-4.0.list
-          line: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/4.0 multiverse"
-          state: present
-          create: yes
+        dest: /etc/apt/sources.list.d/mongodb-org-4.0.list
+        line: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/4.0 multiverse"
+        state: present
+        create: yes
+
     - name: MongoDB | Install the packages
       apt:
-          name:
-            - mongodb-org={{ mongodb_version }}
-            - mongodb-org-server={{ mongodb_version }}
-            - mongodb-org-shell={{ mongodb_version }}
-            - mongodb-org-mongos={{ mongodb_version }}
-            - mongodb-org-tools={{ mongodb_version }}
-          state: present
-          update_cache: yes
+        name:
+          - mongodb-org={{ mongodb_version }}
+          - mongodb-org-server={{ mongodb_version }}
+          - mongodb-org-shell={{ mongodb_version }}
+          - mongodb-org-mongos={{ mongodb_version }}
+          - mongodb-org-tools={{ mongodb_version }}
+        state: present
+        update_cache: yes
       notify:
         - restart mongodb
 
@@ -57,33 +82,78 @@
       copy:
         src: ./templates/mongod.service.j2
         dest: /etc/systemd/system/mongod.service
+
     - name: MongoDB | Listen to all interfaces
       lineinfile:
-          dest: /etc/mongod.conf
-          regexp: '^  bindIp: 127.0.0.1'
-          state: absent
+        dest: /etc/mongod.conf
+        regexp: '^  bindIp: 127.0.0.1'
+        state: absent
       notify:
         - restart mongodb
+
     - name: Install GIT
       apt:
         name: git
         state: present
-    - name: copy private key
-      copy:
-        src: /Users/Yahya/.ssh/id_rsa
-        dest: ~/.ssh/id_rsa
-        owner: root
-        group: root
-        mode: 0600
+
+    # - name: Create ssh directory
+    #   file:
+    #     path: ~/.ssh/
+    #     state: directory
+
+    # - name: copy private key
+    #   copy:
+    #     src: ~/.ssh/locallibrary_deploy_key
+    #     dest: ~/.ssh/id_rsa
+    #     owner: root
+    #     group: root
+    #     mode: 0600
+
+    # - name: ssh scan github
+    #   shell: ssh-keyscan -t rsa github.com
+    #   register: github_keyscan
+
+    # - name: Add github to known hosts
+    #   lineinfile:
+    #     dest: ~/.ssh/known_hosts
+    #     line: "{{ github_keyscan.stdout }}"
+    #     state: present
+    #     create: yes
 
     - name: clone the toy project repo
       git:
         repo: '{{PROJECT_REPO}}'
         dest: $HOME/{{PROJECT_NAME}}
+        force: yes
+      become: yes
+
     - name:  DELETE private key
       file:
-        path: $HOME/.ssh/id_rsa
+        path: $HOME/.ssh/locallibrary_deploy_key
         state: absent
+
+    - name: Install packages.
+      npm:
+        path: $HOME/{{PROJECT_NAME}}
+
+    - name: Install pm2
+      npm: name=pm2 global=yes production=yes
+
+    - name: Stop APP
+      command: pm2 stop npm
+      ignore_errors: yes
+
+    - name: Start service mongo, if not started
+      service:
+        name: mongod
+        state: started
+      ignore_errors: yes
+
+    - name: Start APP
+      command: pm2 start npm -- start --name Express-library chdir=$HOME/{{PROJECT_NAME}}
+      environment:
+        MONGODB_URI: '{{ MONGODB_URI }}'
+
   handlers:
     - name: restart mongodb
       service:
