@@ -1,5 +1,5 @@
 all:
-    hosts:
-        node1.ansible.local:2222
-    vars:
-        ansible_user: auser
+  hosts:
+    node1.ansible.local:2222
+  vars:
+    ansible_user: auser
