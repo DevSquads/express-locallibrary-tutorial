@@ -9,7 +9,7 @@ pipeline {
         }
         stage('Run test') {
             steps {
-                sh 'run-test-container.sh'
+                sh './run-test-container.sh'
             }
         }
          stage('Docker compose teardown') {
