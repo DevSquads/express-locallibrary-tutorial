@@ -12,7 +12,6 @@ test_author = {
 }
 describe('Author ', function () {
   it('Create new author ', function (done) {
-    console.log('in test');
         request.post("http://localhost:3000/catalog/author/create/", {
           json: test_author
         }, (error, res, body) => {
