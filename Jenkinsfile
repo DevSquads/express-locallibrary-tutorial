@@ -12,11 +12,14 @@ pipeline {
                 sh 'sh ./run-test-container.sh'
             }
         }
-         stage('Docker compose teardown') {
-            steps {
-                echo "clean the docker compose containers"
-                sh 'docker-compose down'
-            }
+        stage('Reports') {
+            junit './junit.xml'
+        }
+    }
+    post {
+        always {
+            echo "clean the docker compose containers"
+            sh 'docker-compose down'
         }
     }
 }
