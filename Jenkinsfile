@@ -13,7 +13,9 @@ pipeline {
             }
         }
         stage('Reports') {
-            junit './junit.xml'
+            steps {
+                junit './junit.xml'
+            }
         }
     }
     post {
