@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Reports') {
             steps {
-                junit './junit.xml'
+                junit 'reports/junit.xml'
             }
         }
     }
