@@ -4,12 +4,12 @@ pipeline {
         stage('Docker compose Up') {
             steps {
                 echo "building the docker compose and initialize the containers "
-                sh 'docker-compose  up -d'
+                sh 'docker-compose build --no-cache'
             }
         }
-        stage('waiting ') {
+        stage('Run test') {
             steps {
-               sleep 30
+                sh 'run-test-container.sh'
             }
         }
          stage('Docker compose teardown') {
