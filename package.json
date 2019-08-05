@@ -9,7 +9,27 @@
     "start": "node ./bin/www",
     "devstart": "nodemon ./bin/www",
     "debugstart": "nodemon --inspect=0.0.0.0 ./bin/www",
-    "seed": "node ./populatedb.js $MONGODB_URI"
+    "seed": "node ./populatedb.js $MONGODB_URI",
+    "test": "jest --reporters='default' --reporters='jest-junit'"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "coverageReporters": [
+      "text-summary",
+      "html"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "collectCoverage": true,
+    "testMatch": [
+      "**/*.spec.js"
+    ]
   },
   "dependencies": {
     "async": "^2.6.2",
@@ -26,6 +46,11 @@
     "pug": "2.0.0-beta11"
   },
   "devDependencies": {
-    "nodemon": "^1.18.10"
+    "chai": "^4.2.0",
+    "jest": "^24.8.0",
+    "nodemon": "^1.18.10",
+    "request": "^2.88.0",
+    "supertest": "^4.0.2",
+    "jest-junit": "^7.0.0"
   }
 }
