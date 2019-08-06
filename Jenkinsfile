@@ -10,7 +10,7 @@ pipeline {
         }
         stage('Run test') {
             steps {
-                sh 'sudo docker-compose run  --entrypoint sh web ./test-instance-start-server.sh'
+                sh 'sudo docker-compose up'
             }
         }
         stage('Reports') {
