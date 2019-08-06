@@ -1,7 +1,7 @@
 pipeline {
     agent any
     stages {
-        stage('Docker compose Up') {
+        stage('Docker compose down and build') {
             steps {
                 echo "building the docker compose and initialize the containers "
                 sh 'sudo docker-compose down -v'
@@ -10,7 +10,7 @@ pipeline {
         }
         stage('Run test') {
             steps {
-                sh 'sh ./run-test-container.sh'
+                sh 'sudo docker-compose run  --entrypoint sh web ./test-instance-start-server.sh'
             }
         }
         stage('Reports') {
