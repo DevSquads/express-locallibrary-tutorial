@@ -4,7 +4,7 @@ pipeline {
         stage('Docker compose Up') {
             steps {
                 echo "building the docker compose and initialize the containers "
-                sh 'docker-compose build --no-cache'
+                sh 'sudo docker-compose build --no-cache'
             }
         }
         stage('Run test') {
@@ -21,7 +21,7 @@ pipeline {
     post {
         always {
             echo "clean the docker compose containers"
-            sh 'docker-compose down'
+            sh 'sudo docker-compose down'
         }
     }
 }
