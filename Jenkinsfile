@@ -10,7 +10,7 @@ pipeline {
         }
         stage('Run test') {
             steps {
-                sh 'sudo docker-compose up'
+                sh 'sh ./run-test-container.sh'
             }
         }
         stage('Reports') {
