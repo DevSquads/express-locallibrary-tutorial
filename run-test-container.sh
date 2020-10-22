@@ -1,2 +1,3 @@
 #!/bin/bash
-docker-compose run  --entrypoint sh web ./test-instance-start-server.sh
+docker-compose run  --rm --entrypoint sh web ./test-instance-start-server.sh
+docker-compose down
