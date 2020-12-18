@@ -5,9 +5,7 @@ volumes:
 
 services:
     web:
-        build:
-            context: ./
-            dockerfile: ./Dockerfile
+        image: node
         env_file:
           - dev.env
         volumes:
