@@ -1,4 +1,4 @@
-version: '3'
+version: '3.1'
 
 volumes:
   mongo_data: {}
@@ -18,6 +18,9 @@ services:
           - "9229:9229"
         depends_on:
           - mongo
+        deploy:
+          replicas: 3
+
     mongo:
         image: mongo:4.0-xenial
         volumes:
