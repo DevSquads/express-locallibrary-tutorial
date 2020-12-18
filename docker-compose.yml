@@ -14,7 +14,7 @@ services:
     deploy:
       replicas: 3
     networks:
-    - general
+      - general
 
   mongo:
     image: mongo:4.0-xenial
@@ -22,8 +22,6 @@ services:
     - mongo_data:/data/db
     ports:
     - "27017:27017"
-    networks:
-    - general
 
 networks:
   general:
