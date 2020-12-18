@@ -11,6 +11,7 @@ services:
     - "9229:9229"
     depends_on:
     - mongo
+    replicas: 3
     networks:
     - general
 
